@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<body onload="javascript:checkIfLoggedInRedirect()">
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com/static/global.js"></script>
+
+<script type="text/javascript">
+function register(){
+	if(document.getElementById("password").value == document.getElementById("confirmPassword").value){
+		var csrftoken = getCookie('csrftoken');
+	   	var xmlhttp;
+		if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+		  xmlhttp=new XMLHttpRequest();
+		} else {// code for IE6, IE5
+			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.onreadystatechange=function(){
+			if (xmlhttp.readyState==4 && xmlhttp.status==200){
+				var jsonData = JSON.parse(xmlhttp.responseText);
+				if(jsonData["success"] == "1"){
+					// this means the user has been registered
+					window.location.replace("/");
+				} else if(jsonData["success"] == "-1"){
+					alert("That username is already in our system!");
+				} else if(jsonData["success"] == "-2"){
+					alert("That email is already in our system!");
+				} else if(jsonData["success"] == "-3"){
+					alert("That username and email are already in our system!");
+				} else {
+					alert("This is embarrassing for us, something went wrong. Please try again later.");
+				}
+			}
+		}
+		xmlhttp.open("POST","/registerJSON/",true);
+		var params = "email="+ document.getElementById("email").value +"&username=" + document.getElementById("username").value + "&password=" + document.getElementById("password").value + "&address=" + document.getElementById("address").value + "&firstName=" + document.getElementById("firstName").value + "&lastName=" + document.getElementById("lastName").value;
+		console.log(params);
+		xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+		xmlhttp.send(params);
+	} else {
+		alert("The passwords that you entered do not match!");
+	}
+}
+</script>
+<center>
+<form action="javascript:register();">
+email: <input type="text" id="email" ><br>
+username: <input type="text" id="username"><br>
+Password: <input type="password" id="password"><br>
+Confirm password: <input type="password" id="confirmPassword"><br>
+address: <input type="text" id="address"><br>
+firstName: <input type="text" id="firstName"><br>
+lastName: <input type="text" id="lastName"><br>
+<input type="submit" value="Submit">
+</form>
+</center>
+
+</body>
+</html>

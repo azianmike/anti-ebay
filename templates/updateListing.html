@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<p>Editing listing: {{listingID}} </p>
+
+<form action="/updateListingPost/" method="post" enctype="multipart/form-data">{% csrf_token %}
+<input type="hidden" name="listingID" value="{{listingID}}">
+<br><br>
+Item Description:<br>
+<textarea style="overflow:auto;resize:none" rows="4" cols="50" name="description">{{description}}
+</textarea><br>
+<br>
+Max price willing to pay (full dollars): $<input type="number" name="maxPrice" value={{maxPrice}} min="0"><br>
+<br>
+Item condition you want:
+<br>
+New - In Box:
+<input type="radio" name="condition" value="1" {{newChecked}}>
+<br>Used - Like new:
+<input type="radio" name="condition" value="2" {{used1Checked}}>
+<br>Used - Moderate:
+<input type="radio" name="condition" value="3" {{used2Checked}}>
+<br>Used - Poor:
+<input type="radio" name="condition" value="4" {{used3Checked}}>
+<br>Broken:
+<input type="radio" name="condition" value="5" {{brokenChecked}}>
+<br>
+<input type="submit" value="Submit">
+
+</form>
+</body>
+</html>

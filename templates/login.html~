@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com/static/global.js"></script>
+<body onload="javascript:checkIfLoggedInRedirect()">
+
+<script type="text/javascript">
+function checkIfCorrectLogin() {
+	var csrftoken = getCookie('csrftoken');
+   	var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+	  xmlhttp=new XMLHttpRequest();
+	} else {// code for IE6, IE5
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function(){
+		if (xmlhttp.readyState==4 && xmlhttp.status==200){
+			var jsonData = JSON.parse(xmlhttp.responseText);
+			if(jsonData["success"] == "1"){
+				// redirect on success
+				window.location.replace("/");
+			} else if(jsonData["success"] == "-1") {
+				alert("Username/Password incorrect. Please try again!");
+			}
+		}
+	}
+	xmlhttp.open("POST","/loginJSON/",true);
+	var params = "username="+ document.getElementById("username").value +"&password=" + document.getElementById("password").value;
+	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+	xmlhttp.send(params);
+}
+</script>
+<center>
+<form action="javascript:checkIfLoggedInRedirect();">
+Username: <input type="text" name="username" id="username"><br>
+Password: <input type="password" name="password" id="password"><br>
+<input type="submit" value="Submit">
+</form>
+</center>
+
+</body>
+</html> 
+

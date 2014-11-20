@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<p>Posted by: {{username}}</p>
+<br>
+<p>Item: {{itemName}}</p>
+<br>
+<p>Item category: {{category}}</p>
+<br>
+<p>Item description: {{itemDescription}}</p>
+<br>
+<p>Max price: {{maxPrice}}</p>
+<br>
+<p>Listing description: {{description}}</p>
+<br>
+<p>Condition: {{condition}}</p>
+<br>
+
+<form action="/updateListing/" method="post">{% csrf_token %}
+    <input type="hidden" name="listingID" value="{{listingID}}">
+    <input type="submit" value="Update Listing">
+</form>
+
+<form action="/deleteListing/" method="post">{% csrf_token %}
+    <input type="hidden" name="listingID" value="{{listingID}}">
+    <input type="submit" value="Delete Listing">
+</form>
+
+</body>
+</html>
+
+
+

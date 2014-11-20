@@ -1,0 +1,37 @@
+function getCookie(name) {
+	  var cookieValue = null;
+		if (document.cookie && document.cookie != '') {
+		    var cookies = document.cookie.split(';');
+		    for (var i = 0; i < cookies.length; i++) {
+		        var cookie = jQuery.trim(cookies[i]);
+		        // Does this cookie string begin with the name we want?
+		        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+		            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+		            break;
+		        }
+		    }
+		}
+		return cookieValue;
+}
+function checkIfLoggedInRedirect(){
+	var csrftoken = getCookie('csrftoken');
+   	var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+	  xmlhttp=new XMLHttpRequest();
+	} else {// code for IE6, IE5
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function(){
+		if (xmlhttp.readyState==4 && xmlhttp.status==200){
+			var jsonData = JSON.parse(xmlhttp.responseText);
+			if(jsonData["success"] != "1"){
+				// this means a user is logged in
+				window.location.replace("/");
+			} 
+		}
+	}
+	xmlhttp.open("POST","/checkLoginJSON/",true);
+	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+	xmlhttp.send();
+}

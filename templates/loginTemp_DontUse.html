@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<form action="/loginPost/" method="post" enctype="multipart/form-data">{% csrf_token %}
+email: <input type="text" name="email" value="Mickey"><br>
+Password: <input type="password" name="password" value="Mouse"><br>
+<input type="submit" value="Submit">
+</form>
+
+
+</body>
+</html>

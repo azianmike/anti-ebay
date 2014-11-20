@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<body onload="javascript:loadEvent()">
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com/static/global.js"></script>
+
+<script type="text/javascript">
+function loadEvent(){
+	checkIfLoggedIn();
+	loadCategories();
+}
+function checkIfLoggedIn(){
+	var csrftoken = getCookie('csrftoken');
+   	var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+	  xmlhttp=new XMLHttpRequest();
+	} else {// code for IE6, IE5
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function(){
+		if (xmlhttp.readyState==4 && xmlhttp.status==200){
+			var jsonData = JSON.parse(xmlhttp.responseText);
+			if(jsonData["success"] == "1"){
+				// this means a user is not logged in
+				alert("You must be logged in to add a listing!");
+				window.location.replace("/login/");
+			} 
+		}
+	}
+	xmlhttp.open("POST","/checkLoginJSON/",true);
+	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+	xmlhttp.send();
+}
+function loadCategories(){
+	var csrftoken = getCookie('csrftoken');
+   	var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+	  xmlhttp=new XMLHttpRequest();
+	} else {// code for IE6, IE5
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function(){
+		if (xmlhttp.readyState==4 && xmlhttp.status==200){
+			var jsonData = JSON.parse(xmlhttp.responseText);
+			var x = document.getElementById("categoryDropdown");
+			for(i=0;i<jsonData.length;i++){
+				var option = document.createElement("option");
+				option.text = jsonData[i]["categoryName"];
+				option.value = jsonData[i]["categoryId"];
+				x.add(option);
+			}
+			console.log(jsonData);
+		}
+	}
+	xmlhttp.open("POST","/getCategoriesJSON/",true);
+	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+	xmlhttp.send();
+}
+function loadItems(){
+	$("#itemsDropdown").empty();
+	var e = document.getElementById("categoryDropdown");
+	if(e.options[e.selectedIndex].text != "Please pick a category..."){
+		document.getElementById("itemsDropdown").disabled = false;
+		
+		var csrftoken = getCookie('csrftoken');
+	   	var xmlhttp;
+		if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+		  xmlhttp=new XMLHttpRequest();
+		} else {// code for IE6, IE5
+			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.onreadystatechange=function(){
+			if (xmlhttp.readyState==4 && xmlhttp.status==200){
+				var jsonData = JSON.parse(xmlhttp.responseText);
+				var x = document.getElementById("itemsDropdown");
+				for(i=0;i<jsonData.length;i++){
+					var option = document.createElement("option");
+					option.text = jsonData[i]["itemName"];
+					option.value = jsonData[i]["itemId"];
+					x.add(option);
+				}
+				console.log(jsonData);
+			}
+		}
+		xmlhttp.open("POST","/getItemsJSON/",true);
+		var params = "categoryId=" + e.options[e.selectedIndex].value;
+		xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+		xmlhttp.send(params);
+		
+		
+	} else {
+		document.getElementById("itemsDropdown").disabled = true;
+	}
+	
+}
+</script>
+<center>
+<form>
+Item to sell - <br>
+Category: <select id="categoryDropdown" onchange="loadItems()">
+	<option>Please pick a category...</option>
+</select>
+<br>
+Item: <select id="itemsDropdown" disabled="true"></select>
+<br>
+<br>
+Item Description:<br>
+<textarea style="overflow:auto;resize:none" rows="4" cols="50" name="description">
+</textarea><br>
+<br>
+Max price willing to pay (full dollars): $<input type="number" name="maxPrice" value="100" min="0"><br>
+<br>
+Item condition you want:
+<br>
+New - In Box:
+<input type="radio" name="condition" value="1" >
+<br>Used - Like new:
+<input type="radio" name="condition" value="2" >
+<br>Used - Moderate:
+<input type="radio" name="condition" value="3" >
+<br>Used - Poor:
+<input type="radio" name="condition" value="4" >
+<br>Broken:
+<input type="radio" name="condition" value="5" >
+<br>
+<input type="submit" value="Submit">
+</center>
+
+</body>
+</html> 
+

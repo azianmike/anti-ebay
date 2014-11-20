@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<form action="/viewListingPost/" method="post" enctype="multipart/form-data">{% csrf_token %}
+listingID to view: <input type="text" name="listingID" value = ""><br>
+<input type="submit" value="Submit">
+</form>
+
+
+</body>
+</html>
