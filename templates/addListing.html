@@ -95,9 +95,45 @@ function loadItems(){
 	}
 	
 }
+function submit(){
+	var e = document.getElementById("categoryDropdown");
+	var item = document.getElementById("itemsDropdown");
+	var condition = -1;
+	if(document.getElementById("new").checked){
+		condition = document.getElementById("new").value;
+	} else if(document.getElementById("likeNew").checked){
+		condition = document.getElementById("likeNew").value;
+	} else if(document.getElementById("moderate").checked){
+		condition = document.getElementById("moderate").value;
+	} else if(document.getElementById("poor").checked){
+		condition = document.getElementById("poor").value;
+	} else if(document.getElementById("broken").checked){
+		condition = document.getElementById("broken").value;
+	}
+	if(e.options[e.selectedIndex].text != "Please pick a category..." && condition != -1){
+		var csrftoken = getCookie('csrftoken');
+		var xmlhttp;
+		if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+		  xmlhttp=new XMLHttpRequest();
+		} else {// code for IE6, IE5
+			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.onreadystatechange=function(){
+			if (xmlhttp.readyState==4 && xmlhttp.status==200){
+				var jsonData = JSON.parse(xmlhttp.responseText);
+			
+			}
+		}
+		xmlhttp.open("POST","/addListingJSON/",true);
+		var params = "itemId=" + item.options[item.selectedIndex].value + "&description=" + $("#description").val() + "&condition=" + condition + "&maxPrice=" + $("#maxPrice").val();
+		xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+		xmlhttp.send(params);
+	}
+}
 </script>
 <center>
-<form>
+<form action="javascript:submit();">
 Item to sell - <br>
 Category: <select id="categoryDropdown" onchange="loadItems()">
 	<option>Please pick a category...</option>
@@ -107,23 +143,23 @@ Item: <select id="itemsDropdown" disabled="true"></select>
 <br>
 <br>
 Item Description:<br>
-<textarea style="overflow:auto;resize:none" rows="4" cols="50" name="description">
+<textarea style="overflow:auto;resize:none" rows="4" cols="50" id="description">
 </textarea><br>
 <br>
-Max price willing to pay (full dollars): $<input type="number" name="maxPrice" value="100" min="0"><br>
+Max price willing to pay (full dollars): $<input type="number" id="maxPrice" min="0"><br>
 <br>
 Item condition you want:
 <br>
 New - In Box:
-<input type="radio" name="condition" value="1" >
+<input type="radio" name="condition" id="new" value="1" >
 <br>Used - Like new:
-<input type="radio" name="condition" value="2" >
+<input type="radio" name="condition" id="likeNew" value="2" >
 <br>Used - Moderate:
-<input type="radio" name="condition" value="3" >
+<input type="radio" name="condition" id="moderate" value="3" >
 <br>Used - Poor:
-<input type="radio" name="condition" value="4" >
+<input type="radio" name="condition" id="poor" value="4" >
 <br>Broken:
-<input type="radio" name="condition" value="5" >
+<input type="radio" name="condition" id="broken" value="5" >
 <br>
 <input type="submit" value="Submit">
 </center>
