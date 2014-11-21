@@ -6,11 +6,15 @@ from django.http import HttpResponse
 import json
 # Create your views here.
 
-def addListing(request):
+def addListingJSON(request):
     #email = request.POST.get("email", "")
     #username = request.POST.get("username", "")
     username = request.session.get('username',False)
-    itemID = request.POST.get("itemID", "")
+    if username == False: #no username, no user logged in
+        returnDict = {}
+        returnDict['success'] = -2
+        return HttpResponse(json.dumps(returnDict))
+    itemID = request.POST.get("itemId", "")
     description = request.POST.get("description", "")
     condition = request.POST.get("condition", "")
     maxPrice = request.POST.get("maxPrice", "")

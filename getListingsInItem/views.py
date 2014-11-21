@@ -2,6 +2,7 @@ from django.shortcuts import render
 import mysql.connector
 # Create your views here.
 from django.http import HttpResponse
+from decimal import Decimal
 import json
 
 # Create your views here.
@@ -17,8 +18,12 @@ def getListingsInItemJSON(request):
     for result in cursor.stored_results():
         for item in result.fetchall():
             returnItem = {}
-            returnItem['categoryId'] = item[0]
-            returnItem['categoryName'] = item[1]
+            returnItem['listingId'] = item[0]
+            returnItem['itemId'] = item[1]
+            returnItem['username'] = item[2]
+            returnItem['listingDescription'] = item[3]
+            returnItem['maxPrice'] = float(item[4])
+            returnItem['listingConditionId'] = item[5]
             returnArray.append(returnItem)
     cursor.close()
     return HttpResponse(json.dumps(returnArray))

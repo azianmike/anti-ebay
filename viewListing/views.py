@@ -7,7 +7,7 @@ from django.http import HttpResponse
 
 # Create your views here.
 #@render('viewListing.html',{})
-def index(request):
+def index(request, listingId=None):
     return render(request, 'viewListing.html',{})
     #return HttpResponse("Hello, world. You're at the view listing index.")
 
