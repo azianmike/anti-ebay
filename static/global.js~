@@ -13,3 +13,35 @@ function getCookie(name) {
 		}
 		return cookieValue;
 }
+function getURLParameter(name) {
+  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+}
+
+function getCondition(conditionId){
+	if(conditionId == 1){
+		return "New - In Box";
+	} else if (conditionId == 2){
+		return "Used - Like new";
+	} else if (conditionId == 3){
+		return "Used - Moderate";
+	} else if (conditionId == 4){
+		return "Used - Poor";
+	} else if (conditionId == 5){
+		return "Broken";
+	}
+	return "Error - incorrect conditionId";
+}
+
+function getConditionId(condition){
+	if(condition == "New - In Box"){
+		return 1;
+	} else if (condition == "Used - Like new"){
+		return 2;
+	} else if (condition == "Used - Moderate"){
+		return 3;
+	} else if (condition == "Used - Poor"){
+		return 4;
+	} else if (condition == "Broken"){
+		return 5;
+	}
+}

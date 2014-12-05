@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<head>
+<link rel="stylesheet" type="text/css" href="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com/static/css/default.css">
+</head>
+
+
+<html>
+<body onload="javascript:loadEvent()">
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com/static/global.js"></script>
+
+<script type="text/javascript">
+function loadEvent(){
+	console.log;
+	checkIfLoggednIn();
+	loadCategories();
+}
+function checkIfLoggedIn(){
+	var csrftoken = getCookie('csrftoken');
+   	var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+	  xmlhttp=new XMLHttpRequest();
+	} else {// code for IE6, IE5
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function(){
+		if (xmlhttp.readyState==4 && xmlhttp.status==200){
+			var jsonData = JSON.parse(xmlhttp.responseText);
+                        if(jsonData["success"] != "1"){
+                                // this means a user is logged in
+                                $('#showLogout').html('<p><a class="log" href="/logout">Logout</a></p>');
+                        } else {
+                                $('#showLogin').html('<p><a class="log" href="/login">Login</a></p>');
+                                $('#showRegister').html('<p><a class="log" href="/register">Register</a></p>');
+                        }
+		}
+	}
+	xmlhttp.open("POST","/checkLoginJSON/",true);
+	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+	xmlhttp.send();
+}
+function loadCategories(){
+	var csrftoken = getCookie('csrftoken');
+   	var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+	  xmlhttp=new XMLHttpRequest();
+	} else {// code for IE6, IE5
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function(){
+		if (xmlhttp.readyState==4 && xmlhttp.status==200){
+			var jsonData = JSON.parse(xmlhttp.responseText);
+			var x = document.getElementById("categoryDropdown");
+			for(i=0;i<jsonData.length;i++){
+				var option = document.createElement("option");
+				option.text = jsonData[i]["categoryName"];
+				option.value = jsonData[i]["categoryId"];
+				x.add(option);
+			}
+		}
+	}
+	xmlhttp.open("POST","/getCategoriesJSON/",true);
+	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+	xmlhttp.send();
+}
+function loadItems(){
+	$("#itemsDropdown").empty();
+	var e = document.getElementById("categoryDropdown");
+	if(e.options[e.selectedIndex].text != "Please pick a category..."){
+		document.getElementById("itemsDropdown").disabled = false;
+		
+		var csrftoken = getCookie('csrftoken');
+	   	var xmlhttp;
+		if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+		  xmlhttp=new XMLHttpRequest();
+		} else {// code for IE6, IE5
+			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.onreadystatechange=function(){
+			if (xmlhttp.readyState==4 && xmlhttp.status==200){
+				var jsonData = JSON.parse(xmlhttp.responseText);
+				var x = document.getElementById("itemsDropdown");
+				for(i=0;i<jsonData.length;i++){
+					var option = document.createElement("option");
+					option.text = jsonData[i]["itemName"];
+					option.value = jsonData[i]["itemId"];
+					x.add(option);
+				}
+			}
+		}
+		xmlhttp.open("POST","/getItemsJSON/",true);
+		var params = "categoryId=" + e.options[e.selectedIndex].value;
+		xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+		xmlhttp.send(params);
+		
+		
+	} else {
+		document.getElementById("itemsDropdown").disabled = true;
+	}
+	
+}
+function submit(){
+	var e = document.getElementById("categoryDropdown");
+	var item = document.getElementById("itemsDropdown");
+	var itemName = item.options[item.selectedIndex].text;
+	if(e.options[e.selectedIndex].text != "Please pick a category..." && item.options[item.selectedIndex] != null){
+		var csrftoken = getCookie('csrftoken');
+		var xmlhttp;
+		if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+		  xmlhttp=new XMLHttpRequest();
+		} else {// code for IE6, IE5
+			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.onreadystatechange=function(){
+			if (xmlhttp.readyState==4 && xmlhttp.status==200){
+				var jsonData = JSON.parse(xmlhttp.responseText);
+				console.log(jsonData);
+				var resultHtml = "";
+				for(var i = 0; i<jsonData.length; i++){
+					resultHtml += '<a href="/viewListingNew?listingId=' + jsonData[i]["listingId"] + '">' + getCondition(jsonData[i]["listingConditionId"]) +  ' ' + itemName + ' sold by ' + jsonData[i]["username"] + ' with a max price of $' + jsonData[i]["maxPrice"] + '</a><br>';
+				}
+				document.getElementById("results").innerHTML = resultHtml;
+			}
+		}
+		xmlhttp.open("POST","/getListingsInItemJSON/",true);
+		var params = "itemId=" + item.options[item.selectedIndex].value;
+		xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+		xmlhttp.send(params);
+	}
+}
+</script>
+
+<div id="showRegister"></div>
+<div id="showLogin"></div>
+<div id="showLogout"></div>
+
+<h1><a class="title" href="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com">Anti-Ebay</a></h1>
+
+<ul>
+<li><a class="nav" href="/addListing">Add your listing</a></p>
+<li><a class="nav" href="/viewListing">View a listing</a></p>
+<li><a class="nav" href="/searchListings">Search listings</a></p>
+</ul>
+<br>
+
+Search for listings<br>
+<form action="javascript:submit();">
+Item to sell - <br>
+Category: <select id="categoryDropdown" onchange="loadItems()">
+	<option>Please pick a category...</option>
+</select>
+     Item: <select id="itemsDropdown" disabled="true"></select>
+<input type="submit" value="Search...">
+<br>
+<br>
+<div id="results"></div>
+
+</body>
+</html> 

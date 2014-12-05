@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+
+<head>
+<link rel="stylesheet" type="text/css" href="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com/static/css/default.css">
+</head>
+
 <html>
 <body onload="javascript:checkIfLoggedIn()">
 
@@ -19,10 +24,12 @@ function checkIfLoggedIn(){
 			var jsonData = JSON.parse(xmlhttp.responseText);
 			if(jsonData["success"] != "1"){
 				// this means a user is logged in
-				$('#showLoginOrWelcomeMessage').html("Welcome " + jsonData["success"] + "!");
+				$('#showWelcomeMessage').html("Welcome back " + jsonData["success"] + "!");
+                                $('#showLogout').html('<p><a class="log" href="/logout">Logout</a></p>');
 			} else {
-				$('#showLoginOrWelcomeMessage').html('<p><a href="/login">Login</a></p>');
-				$('#showRegister').html('<p><a href="/register">Register</a></p>');
+                                $('#showDescription').html('<p id="desc">A market where the seller bids on the lowest price on a product a buyer is interested in!</p>')
+				$('#showLogin').html('<p><a class="log" href="/login">Login</a></p>');
+				$('#showRegister').html('<p><a class="log" href="/register">Register</a></p>');
 			}
 		}
 	}
@@ -32,17 +39,23 @@ function checkIfLoggedIn(){
 	xmlhttp.send();
 }
 </script>
-<center>
-<h1>Anti-ebay</h1>
 
-<p>The buyer's ebay</p>
-
-<div id="showLoginOrWelcomeMessage"></div>
 <div id="showRegister"></div>
-<p><a href="/addListing">Add your listing</a></p>
-<p><a href="/viewListing">View a listing</a></p>
-<p><a href="/logout">Logout</a></p>
-</center>
+<div id="showLogin"></div>
+<div id="showLogout"></div>
+
+<h1>Anti-Ebay</h1>
+
+<ul>
+<li><a class="nav" href="/addListing">Add your listing</a></p>
+<li><a class="nav" href="/viewListing">View a listing</a></p>
+<li><a class="nav" href="/searchListings">Search listings</a></p>
+</ul>
+<br>
+
+<div id="showDescription"></div>
+<div id="showWelcomeMessage"></div>
+
 </body>
 </html>
 

@@ -27,8 +27,8 @@ def bidJSON(request):
 
 def getBidsJSON(request):
     #return render(request, 'insertListing.html',{})
-    listingId = request.POST.get("listingId", "")
-
+    #listingId = request.POST.get("listingId", "")
+    listingId = request.POST.get('listingId', 14)    
     cnx = mysql.connector.connect(user='root',database='antiebay')
     cursor = cnx.cursor()
     ret = cursor.callproc("getBids", (listingId,))

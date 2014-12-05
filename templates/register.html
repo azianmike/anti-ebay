@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+
+<head>
+<link rel="stylesheet" type="text/css" href="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com/static/css/default.css">
+</head>
+
 <html>
 <body onload="javascript:checkIfLoggedIn()">
 
@@ -67,18 +72,29 @@ function register(){
 	}
 }
 </script>
-<center>
+
+<p><a class="log" href="/register">Register</a></p>
+<p><a class="log" href="/login">Login</a></p>
+
+<h1><a class="title" href="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com">Anti-Ebay</a></h1>
+
+<ul>
+<li><a class="nav" href="/addListing">Add your listing</a></p>
+<li><a class="nav" href="/viewListing">View a listing</a></p>
+<li><a class="nav" href="/searchListings">Search listings</a></p>
+</ul>
+<br>
+
 <form action="javascript:register();">
-email: <input type="text" id="email" ><br>
-username: <input type="text" id="username"><br>
-Password: <input type="password" id="password"><br>
-Confirm password: <input type="password" id="confirmPassword"><br>
-address: <input type="text" id="address"><br>
-firstName: <input type="text" id="firstName"><br>
-lastName: <input type="text" id="lastName"><br>
+<label class="cred">Email: </label><input type="text" id="email" ><br>
+<label class="cred">Username: </label><input type="text" id="username"><br>
+<label class="cred">Password: </label><input type="password" id="password"><br>
+<label class="cred">Confirm Password: </label><input type="password" id="confirmPassword"><br>
+<label class="cred">Address: </label><input type="text" id="address"><br>
+<label class="cred">First Name: </label><input type="text" id="firstName"><br>
+<label class="cred">Last Name: </label><input type="text" id="lastName"><br>
 <input type="submit" value="Submit">
 </form>
-</center>
 
 </body>
 </html>
