@@ -46,3 +46,38 @@ def getBidsJSON(request):
             returnArray.append(returnItem)
     cursor.close()
     return HttpResponse(json.dumps(returnArray))
+
+def getUserBidsJSON(request):
+    #return render(request, 'insertListing.html',{})
+    #listingId = request.POST.get("listingId", "")
+    if request.session.get('has_loggedin',False):
+        username = request.session.get('username','test2')
+    
+    cnx = mysql.connector.connect(user='root',database='antiebay')
+    cursor = cnx.cursor()
+    ret = cursor.callproc("getUserBids", (username,))
+    cnx.commit()
+
+    returnArray = []
+    for result in cursor.stored_results():
+        for item in result.fetchall():
+            returnItem = {}
+            returnItem['price'] = float(item[0])
+            returnItem['listingId'] = item[1]
+            returnArray.append(returnItem)
+    cursor.close()
+    return HttpResponse(json.dumps(returnArray))
+
+def deleteUserBidJSON(request):
+    #return render(request, 'insertListing.html',{})
+    #listingId = request.POST.get("listingId", "")
+    if request.session.get('has_loggedin',False):
+        username = request.session.get('username','test2')
+
+    listingId = request.POST.get('listingId', 11)
+    cnx = mysql.connector.connect(user='root',database='antiebay')
+    cursor = cnx.cursor()
+    ret = cursor.callproc("deleteUserBid", (username,listingId))
+    cnx.commit()
+    cursor.close()
+    return HttpResponse(json.dumps({'success':1}))

@@ -20,7 +20,7 @@ def index(request):
     #    return HttpResponse(json.dumps(returnDict))
 
     #start POST and db stuff
-    itemId = request.POST.get("itemId", "6")
+    itemId = request.POST.get("itemId", "5")
     listingConditionId = request.POST.get("listingConditionId", "3")
     price = request.POST.get("price", "375")
 

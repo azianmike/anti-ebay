@@ -1,18 +1,16 @@
 <!DOCTYPE html>
-
+<html>
 <head>
 <link rel="stylesheet" type="text/css" href="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com/static/css/default.css">
 </head>
 
-
-<html>
-<body onload="javascript:loadEvent()">
+<body onload="javascript:onLoad()">
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com/static/global.js"></script>
 
 <script type="text/javascript">
-function loadEvent(){
+function onLoad(){
 	checkIfLoggedIn();
 	loadCategories();
 }
@@ -27,13 +25,11 @@ function checkIfLoggedIn(){
 	xmlhttp.onreadystatechange=function(){
 		if (xmlhttp.readyState==4 && xmlhttp.status==200){
 			var jsonData = JSON.parse(xmlhttp.responseText);
-                        if(jsonData["success"] != "1"){
-                                // this means a user is logged in
-                                $('#showLogout').html('<p><a class="log" href="/logout">Logout</a></p>');
-                        } else {
-                                $('#showLogin').html('<p><a class="log" href="/login">Login</a></p>');
-                                $('#showRegister').html('<p><a class="log" href="/register">Register</a></p>');
-                        }
+			if(jsonData["success"] == "1"){
+				// this means a user is not logged in
+				alert("You must be logged in to add a listing!");
+				window.location.replace("/login/");
+			} 
 		}
 	}
 	xmlhttp.open("POST","/checkLoginJSON/",true);
@@ -106,8 +102,20 @@ function loadItems(){
 function submit(){
 	var e = document.getElementById("categoryDropdown");
 	var item = document.getElementById("itemsDropdown");
-	var itemName = item.options[item.selectedIndex].text;
-	if(e.options[e.selectedIndex].text != "Please pick a category..." && item.options[item.selectedIndex] != null){
+	var condition = -1;
+	var bidPrice = document.getElementById("bidPrice").value;
+	if(document.getElementById("new").checked){
+		condition = document.getElementById("new").value;
+	} else if(document.getElementById("likeNew").checked){
+		condition = document.getElementById("likeNew").value;
+	} else if(document.getElementById("moderate").checked){
+		condition = document.getElementById("moderate").value;
+	} else if(document.getElementById("poor").checked){
+		condition = document.getElementById("poor").value;
+	} else if(document.getElementById("broken").checked){
+		condition = document.getElementById("broken").value;
+	}
+	if(e.options[e.selectedIndex].text != "Please pick a category..." && condition != -1){
 		var csrftoken = getCookie('csrftoken');
 		var xmlhttp;
 		if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
@@ -118,16 +126,15 @@ function submit(){
 		xmlhttp.onreadystatechange=function(){
 			if (xmlhttp.readyState==4 && xmlhttp.status==200){
 				var jsonData = JSON.parse(xmlhttp.responseText);
-				console.log(jsonData);
-				var resultHtml = "";
-				for(var i = 0; i<jsonData.length; i++){
-					resultHtml += '<a href="/viewListingNew?listingId=' + jsonData[i]["listingId"] + '">' + jsonData[i]["username"] + " is looking for a " + getCondition(jsonData[i]["listingConditionId"]) +  ' ' + itemName + ' with a max price of $' + jsonData[i]["maxPrice"] + '</a><br>';
+				if(jsonData["size"] != "0"){
+					alert("Success! You bid on " + jsonData["size"] + " listings!");
+				} else {
+					alert("There are no items fitting you description to bid on.");
 				}
-				document.getElementById("results").innerHTML = resultHtml;
 			}
 		}
-		xmlhttp.open("POST","/getListingsInItemJSON/",true);
-		var params = "itemId=" + item.options[item.selectedIndex].value;
+		xmlhttp.open("POST","/autobidJSON/",true);
+		var params = "itemId=" + item.options[item.selectedIndex].value + "&listingConditionId=" + condition + "&price=" + bidPrice;
 		xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
 		xmlhttp.send(params);
@@ -135,9 +142,7 @@ function submit(){
 }
 </script>
 
-<div id="showRegister"></div>
-<div id="showLogin"></div>
-<div id="showLogout"></div>
+<p><a class="log" href="/logout">Logout</a></p>
 
 <h1><a class="title" href="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com">Anti-Ebay</a></h1>
 
@@ -149,17 +154,24 @@ function submit(){
 <li><a class="nav" href="/viewBids">View My Bids</a></p>
 </ul>
 <br>
-
-Search for listings by item<br>
 <form action="javascript:submit();">
 Category: <select id="categoryDropdown" onchange="loadItems()">
 	<option>Please pick a category...</option>
 </select>
-     Item: <select id="itemsDropdown" disabled="true"></select>
-<input type="submit" value="Search...">
+     Item: <select id="itemsDropdown" disabled="true"></select><br><br>
+Bid Price: <input type="number" id="bidPrice">
+<br><br>
+New - In Box:
+<input type="radio" name="condition" id="new" value="1" >
+<br>Used - Like new:
+<input type="radio" name="condition" id="likeNew" value="2" >
+<br>Used - Moderate:
+<input type="radio" name="condition" id="moderate" value="3" >
+<br>Used - Poor:
+<input type="radio" name="condition" id="poor" value="4" >
+<br>Broken:
+<input type="radio" name="condition" id="broken" value="5" >
 <br>
-<br>
-<div id="results"></div>
-
+<input type="submit" value="Submit">
 </body>
-</html> 
+</html>

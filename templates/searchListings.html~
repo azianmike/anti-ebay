@@ -13,8 +13,7 @@
 
 <script type="text/javascript">
 function loadEvent(){
-	console.log;
-	checkIfLoggednIn();
+	checkIfLoggedIn();
 	loadCategories();
 }
 function checkIfLoggedIn(){
@@ -122,7 +121,7 @@ function submit(){
 				console.log(jsonData);
 				var resultHtml = "";
 				for(var i = 0; i<jsonData.length; i++){
-					resultHtml += '<a href="/viewListingNew?listingId=' + jsonData[i]["listingId"] + '">' + getCondition(jsonData[i]["listingConditionId"]) +  ' ' + itemName + ' sold by ' + jsonData[i]["username"] + ' with a max price of $' + jsonData[i]["maxPrice"] + '</a><br>';
+					resultHtml += '<a href="/viewListingNew?listingId=' + jsonData[i]["listingId"] + '">' + jsonData[i]["username"] + " is looking for " + getCondition(jsonData[i]["listingConditionId"]) +  ' ' + itemName + ' with a max price of $' + jsonData[i]["maxPrice"] + '</a><br>';
 				}
 				document.getElementById("results").innerHTML = resultHtml;
 			}
@@ -149,9 +148,8 @@ function submit(){
 </ul>
 <br>
 
-Search for listings<br>
+Search for listings by item<br>
 <form action="javascript:submit();">
-Item to sell - <br>
 Category: <select id="categoryDropdown" onchange="loadItems()">
 	<option>Please pick a category...</option>
 </select>

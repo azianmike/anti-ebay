@@ -59,12 +59,14 @@ console.log(myvar);
 <li><a class="nav" href="/addListing">Add your listing</a></p>
 <li><a class="nav" href="/viewListing">View a listing</a></p>
 <li><a class="nav" href="/searchListings">Search listings</a></p>
+<li><a class="nav" href="/autoBid">Automatic Bid</a></p>
+<li><a class="nav" href="/viewBids">View My Bids</a></p>
 </ul>
 <br>
 
 
-<form action="/viewListingPost/" method="post" enctype="multipart/form-data">{% csrf_token %}
-Enter Listing ID to view: <input type="text" name="listingID" value = ""><br>
+<form action="/viewListingNew/" enctype="multipart/form-data">{% csrf_token %}
+Enter Listing ID to view: <input type="text" name="listingId" value = ""><br>
 <input type="submit" value="Submit">
 </form>
 

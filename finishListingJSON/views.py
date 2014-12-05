@@ -20,7 +20,7 @@ def finishListingJSON(request):
     #    return HttpResponse(json.dumps(returnDict))
 
     #start POST and db stuff
-    listingId = request.POST.get("listingId", "60")
+    listingId = request.POST.get("listingId", "62")
     closingPrice = request.POST.get("closingPrice", "350")
 
     cnx = mysql.connector.connect(user='root',database='antiebay')

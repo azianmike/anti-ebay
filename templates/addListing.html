@@ -129,6 +129,7 @@ function submit(){
 				var jsonData = JSON.parse(xmlhttp.responseText);
 				if(jsonData["success"] == "1"){
 					alert("Success!");
+					window.location.replace("http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com");
 				} else {
 					alert("Something went wrong!");
 				}
@@ -141,6 +142,29 @@ function submit(){
 		xmlhttp.send(params);
 	}
 }
+function getStats(){
+	var csrftoken = getCookie('csrftoken');
+	var item = document.getElementById("itemsDropdown");
+	var itemId = item.options[item.selectedIndex].value;
+	var selected = $("input[type='radio'][name='condition']:checked");
+	var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+	  xmlhttp=new XMLHttpRequest();
+	} else {// code for IE6, IE5
+	        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function(){
+	        if (xmlhttp.readyState==4 && xmlhttp.status==200){
+					var jsonData = JSON.parse(xmlhttp.responseText);
+					alert("You have a " + jsonData["probability"] + "% chance of buying your item");
+	        }
+	}
+	xmlhttp.open("POST","/calculateSellProbabilityJSON/",true);
+	var params = "itemId=" + itemId + "&listingConditionId="+ selected.val() + "&price=" + document.getElementById("maxPrice").value;
+	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+	xmlhttp.send(params);
+}
 </script>
 
 <p><a class="log" href="/logout">Logout</a></p>
@@ -151,6 +175,8 @@ function submit(){
 <li><a class="nav" href="/addListing">Add your listing</a></p>
 <li><a class="nav" href="/viewListing">View a listing</a></p>
 <li><a class="nav" href="/searchListings">Search listings</a></p>
+<li><a class="nav" href="/autoBid">Automatic Bid</a></p>
+<li><a class="nav" href="/viewBids">View My Bids</a></p>
 </ul>
 <br>
 
@@ -182,6 +208,7 @@ New - In Box:
 <br>Broken:
 <input type="radio" name="condition" id="broken" value="5" >
 <br>
+<button onclick="getStats()" type="button">Get Probability</button><br>
 <input type="submit" value="Submit">
 
 </body>

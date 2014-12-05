@@ -1,42 +1,19 @@
 <!DOCTYPE html>
-
+<html>
 <head>
 <link rel="stylesheet" type="text/css" href="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com/static/css/default.css">
 </head>
 
-<head>
-<body onload="javascript:checkIfLoggedIn()">
+<body onload="javascript:onLoad()">
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com/static/global.js"></script>
 
 <script type="text/javascript">
-function checkIfCorrectLogin() {
-	var csrftoken = getCookie('csrftoken');
-   	var xmlhttp;
-	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
-	  xmlhttp=new XMLHttpRequest();
-	} else {// code for IE6, IE5
-		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-	}
-	xmlhttp.onreadystatechange=function(){
-		if (xmlhttp.readyState==4 && xmlhttp.status==200){
-			var jsonData = JSON.parse(xmlhttp.responseText);
-			if(jsonData["success"] == "1"){
-				// redirect on success
-				window.location.replace("/");
-			} else if(jsonData["success"] == "-1") {
-				alert("Username/Password incorrect. Please try again!");
-			}
-		}
-	}
-	xmlhttp.open("POST","/loginJSON/",true);
-	var params = "username="+ document.getElementById("username").value +"&password=" + document.getElementById("password").value;
-	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
-	xmlhttp.send(params);
+function onLoad(){
+	checkIfLoggedIn();
+	loadBids();
 }
-
 function checkIfLoggedIn(){
 	var csrftoken = getCookie('csrftoken');
    	var xmlhttp;
@@ -48,9 +25,10 @@ function checkIfLoggedIn(){
 	xmlhttp.onreadystatechange=function(){
 		if (xmlhttp.readyState==4 && xmlhttp.status==200){
 			var jsonData = JSON.parse(xmlhttp.responseText);
-			if(jsonData["success"] != "1"){
-				// this means a user is logged in
-				window.location.replace("/");
+			if(jsonData["success"] == "1"){
+				// this means a user is not logged in
+				alert("You must be logged in to add a listing!");
+				window.location.replace("/login/");
 			} 
 		}
 	}
@@ -59,10 +37,56 @@ function checkIfLoggedIn(){
 	xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
 	xmlhttp.send();
 }
+function loadBids(){
+	var csrftoken = getCookie('csrftoken');
+	var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+	  xmlhttp=new XMLHttpRequest();
+	} else {// code for IE6, IE5
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function(){
+		if (xmlhttp.readyState==4 && xmlhttp.status==200){
+			var jsonData = JSON.parse(xmlhttp.responseText);
+			var htmlString = '<form action="javascript:submit();">';
+			for(var i = 0;i<jsonData.length;i++){
+				htmlString += '<input type="radio" name="delete" value="' + jsonData[i]["listingId"] + '" /> <a href="/viewListingNew/?listingId=' + jsonData[i]["listingId"] + '">View Listing</a> Price: ' + jsonData[i]["price"] + '<br>';
+			}
+			htmlString += '<button>Delete</button></form>';
+			document.getElementById("bids").innerHTML = htmlString;
+		}
+	}
+	xmlhttp.open("POST","/getUserBidsJSON/",true);
+	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+	xmlhttp.send();
+}
+function submit(){
+	var csrftoken = getCookie('csrftoken');
+	var selected = $("input[type='radio'][name='delete']:checked");
+	var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+	  xmlhttp=new XMLHttpRequest();
+	} else {// code for IE6, IE5
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function(){
+		if (xmlhttp.readyState==4 && xmlhttp.status==200){
+			var jsonData = JSON.parse(xmlhttp.responseText);
+			console.log(jsonData);
+		}
+	}
+	xmlhttp.open("POST","/deleteUserBidJSON/",true);
+	var params = "listingId=" + selected.val();
+	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+	xmlhttp.send(params);
+}
 </script>
 
-<p><a class="log" href="/register">Register</a></p>
-<p><a class="log" href="/login">Login</a></p>
+<div id="showRegister"></div>
+<div id="showLogin"></div>
+<div id="showLogout"></div>
 
 <h1><a class="title" href="http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com">Anti-Ebay</a></h1>
 
@@ -70,18 +94,9 @@ function checkIfLoggedIn(){
 <li><a class="nav" href="/addListing">Add your listing</a></p>
 <li><a class="nav" href="/viewListing">View a listing</a></p>
 <li><a class="nav" href="/searchListings">Search listings</a></p>
-<li><a class="nav" href="/autoBid">Automatic Bid</a></p>
-<li><a class="nav" href="/viewBids">View My Bids</a></p>
 </ul>
 <br>
-
-
-<form action="javascript:checkIfCorrectLogin();">
-<label class="cred">Username: </label><input type="text" name="username" id="username"><br>
-<label class="cred">Password: </label><input type="password" name="password" id="password"><br>
-<input type="submit" value="Submit">
-</form>
-
+Your Bids!<br>
+<div id="bids"></div>
 </body>
-</html> 
-
+</html>

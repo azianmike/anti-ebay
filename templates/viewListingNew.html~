@@ -11,13 +11,11 @@
 
 <script type="text/javascript">
 function onLoad(){
-	var listingId = getURLParameter("listingId");
+	listingId = getURLParameter("listingId");
 	if(listingId == null){
 		window.location.replace("/searchListings/");	
 	}
 	checkIfLoggedIn();
-	getListingInfo();
-	getBidsInfo();
 }
 function checkIfLoggedIn(){
         var csrftoken = getCookie('csrftoken');
@@ -32,6 +30,7 @@ function checkIfLoggedIn(){
                         var jsonData = JSON.parse(xmlhttp.responseText);
                         if(jsonData["success"] != "1"){
                                 // this means a user is logged in
+								username = jsonData["success"];
                                 document.getElementById("bid").style.visibility = 'visible';
                                 $('#showLogout').html('<p><a class="log" href="/logout">Logout</a></p>');
                         } else {
@@ -39,6 +38,7 @@ function checkIfLoggedIn(){
                                 $('#showLogin').html('<p><a class="log" href="/login">Login</a></p>');
                                 $('#showRegister').html('<p><a class="log" href="/register">Register</a></p>');
                         }
+					getListingInfo();
                 }
         }
         xmlhttp.open("POST","/checkLoginJSON/",true);
@@ -66,7 +66,11 @@ function getListingInfo(){
 					document.getElementById("buyerCondition").innerHTML = 'Buyers Condition: ' + jsonData["condition"];
 					document.getElementById("buyerDesc").innerHTML = jsonData["description"];
 					itemId = jsonData["itemId"];
+					itemName = jsonData["itemName"];
 					maxPrice = jsonData["maxPrice"];
+					condition = jsonData["condition"];
+					buyerUsername = jsonData["username"];
+				getBidsInfo();
             }
     }
     xmlhttp.open("POST","/getListingJSON/",true);
@@ -86,12 +90,13 @@ function getBidsInfo(){
     xmlhttp.onreadystatechange=function(){
             if (xmlhttp.readyState==4 && xmlhttp.status==200){
                     var jsonData = JSON.parse(xmlhttp.responseText);
-					var resultHtml = "<table style='width:100%'><tr><th>Username</th><th>Selling Price</th></tr>";
+					var resultHtml = "<table id='bidTable' style='width:100%'><tr><th>Username</th><th>Selling Price</th></tr>";
 					for(var i = 0; i<jsonData.length; i++){
 						resultHtml += '<tr><td>' + jsonData[i]['username'] + '</td><td>' + jsonData[i]['price'] + '</td></tr>';
 					}
 					resultHtml += "</table>";
-					document.getElementById("bidTable").innerHTML = resultHtml;
+					document.getElementById("bidTableDiv").innerHTML = resultHtml;
+					getBidsToPick();
             }
     }
     xmlhttp.open("POST","/getBidsJSON/",true);
@@ -100,8 +105,31 @@ function getBidsInfo(){
     xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
     xmlhttp.send(params);
 }
+function getBidsToPick(){
+	if(username == buyerUsername){
+		document.getElementById("bid").style.visibility = "hidden";
+		var htmlString = 'Select Bid to Buy: <select id="bidSelection">';
+		var array = document.getElementById("bidTable").rows;
+		for(var i = 1; i<array.length;i++){
+			var temp = array[i].innerHTML;
+			temp = temp.replace('</td><td>', ' Bid Price: ');
+			temp = temp.replace('</tr>', '');
+			temp = temp.replace('<td>', '');
+			temp = temp.replace('</td>', '');
+			temp = "User: " + temp;
+			var value = temp.indexOf('Bid Price: ');
+			value = temp.substring(value + 11);
+			htmlString += '<option value="'+ value + '">'+temp+'</option>';
+		}
+		htmlString += '</select>  <button type="button" onclick="buy()">Buy!</button>';
+		document.getElementById("pickBid").innerHTML = htmlString;
+	}
+}
 function bid(){
 	var bidPrice = document.getElementById("bidPrice").value;
+	if(bidPrice == ""){
+		return;
+	}
 	if(bidPrice > maxPrice){
 		alert("Please enter a bid price less than or equal to the buyers max price.");
 	} else{
@@ -118,11 +146,55 @@ function bid(){
 		        }
 		}
 		xmlhttp.open("POST","/bidJSON/",true);
-		var params = "price=" + document.getElementById("bidPrice").value + "&itemId=" + itemId + "&listingId=" + getURLParameter("listingId");;
+		var params = "price=" + document.getElementById("bidPrice").value + "&itemId=" + itemId + "&listingId=" + getURLParameter("listingId");
 		xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
 		xmlhttp.send(params);
 	}
+}
+function getStats(){
+	var csrftoken = getCookie('csrftoken');
+	var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+	  xmlhttp=new XMLHttpRequest();
+	} else {// code for IE6, IE5
+	        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function(){
+	        if (xmlhttp.readyState==4 && xmlhttp.status==200){
+					var jsonData = JSON.parse(xmlhttp.responseText);
+					alert("You have a " + jsonData["probability"] + "% chance of selling your item");
+	        }
+	}
+	xmlhttp.open("POST","/calculateSellProbabilityJSON/",true);
+	var params = "itemId=" + itemId + "&listingConditionId="+ getConditionId(condition) + "&price=" + document.getElementById("bidPrice").value;
+	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+	xmlhttp.send(params);
+}
+function buy(){
+	var item = document.getElementById("bidSelection");
+	var lastPrice = item.options[item.selectedIndex].value;
+	var csrftoken = getCookie('csrftoken');
+	var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+	  xmlhttp=new XMLHttpRequest();
+	} else {// code for IE6, IE5
+	        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function(){
+	        if (xmlhttp.readyState==4 && xmlhttp.status==200){
+					var jsonData = JSON.parse(xmlhttp.responseText);
+					alert("Congrats! You just bought a " + itemName + " for $" + lastPrice + "!");
+					window.location.replace("http://ec2-54-68-227-128.us-west-2.compute.amazonaws.com/");
+	        }
+	}
+	xmlhttp.open("POST","/finishListingJSON/",true);
+	var params = "listingId=" + listingId + "&closingPrice=" + lastPrice;
+	console.log(params);
+	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader('X-CSRFToken', csrftoken);
+	xmlhttp.send(params);
 }
 </script>
 
@@ -161,10 +233,11 @@ function bid(){
 </div>
 <div style="float:right; width:40%;">
 	<div id="bid">
-	Bid: <input type="number" id="bidPrice"><button onclick="bid()">Bid</button>
+	Bid: <input type="number" id="bidPrice"><button onclick="bid()">Bid</button><button onclick="getStats()">Get Probability</button>
 	</div><br>
+	<div id="pickBid"></div><br>
 	Current Bids<br>
-	<div id="bidTable"></div>
+	<div id="bidTableDiv"></div>
 </div>
 </body>
 </html>

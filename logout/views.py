@@ -9,8 +9,7 @@ def index(request):
     #return render(request, 'login.html',{})
     #
     request.session.flush()
-    return HttpResponse("You've logged out!")
-
+    return render(request, 'login.html',{})
 
 
 
